@@ -1,3 +1,6 @@
+//First Come first Serve
+//Author -- Yuvraj Mann
+
 #include <bits/stdc++.h>
 using namespace std;
 
