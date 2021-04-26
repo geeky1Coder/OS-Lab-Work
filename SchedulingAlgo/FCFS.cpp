@@ -4,56 +4,79 @@
 #include <bits/stdc++.h>
 using namespace std;
 
-vector<int> completionTime(vector<int> arrival, vector<int> burst)
+class Job
 {
-    vector<int> completion(4, 0);
-    int n = arrival.size();
+public:
+    int arrival;
+    int burst;
+    int index;
+
+    Job(int arrival, int burst, int index)
+    {
+        this->arrival = arrival;
+        this->burst = burst;
+        this->index = index;
+    }
+};
+
+vector<int> completionTime(vector<Job> jobs)
+{
+    vector<int> completion;
+    int n = jobs.size();
     int i = 1;
-    int end = arrival[0] + burst[i];
-    completion[0] = end;
+    int end = jobs[0].arrival + jobs[0].burst;
+    completion.push_back(end);
     while (i < n)
     {
-        if (end > (arrival[i]))
+        if (end > (jobs[i].arrival))
         {
-            end += burst[i];
+            end += jobs[i].burst;
         }
         else
         {
-            end = arrival[i] + burst[i];
+            end = jobs[i].arrival + jobs[i].burst;
         }
-        completion[i] = end;
+        completion.push_back(end);
         i++;
     }
     return completion;
 }
 
-vector<int> turnAroundTime(vector<int> arrival, vector<int> completion)
+vector<int> turnAroundTime(vector<Job> jobs, vector<int> completion)
 {
     vector<int> tat;
-    int n = arrival.size();
+    int n = jobs.size();
     for (int i = 0; i < n; ++i)
     {
-        tat.push_back(completion[i] - arrival[i]);
+        tat.push_back(completion[i] - jobs[i].arrival);
     }
     return tat;
 }
 
-vector<int> waitingTime(vector<int> burst, vector<int> tat)
+vector<int> waitingTime(vector<Job> jobs, vector<int> tat)
 {
     vector<int> waiting;
-    int n = burst.size();
+    int n = jobs.size();
     for (int i = 0; i < n; ++i)
     {
-        waiting.push_back(tat[i] - burst[i]);
+        waiting.push_back(tat[i] - jobs[i].burst);
     }
     return waiting;
 }
 int main()
 {
-    vector<int> processes = {0, 1, 5, 6}; //arrival time
-    vector<int> burstTime = {2, 2, 3, 4};
+    vector<Job> jobs;
+    Job job1(0, 2, 1);
+    Job job2(1, 2, 2);
+    Job job3(5, 3, 3);
+    Job job4(6, 4, 4);
 
-    vector<int> completion = completionTime(processes, burstTime);
+    jobs.push_back(job1);
+    jobs.push_back(job2);
+    jobs.push_back(job3);
+    jobs.push_back(job4);
+
+    vector<int> completion = completionTime(jobs);
     cout << "Completion Time :";
     for (auto el : completion)
     {
@@ -62,7 +85,7 @@ int main()
     cout << endl;
 
     cout << "Turn Around Time :";
-    vector<int> tat = turnAroundTime(processes, completion);
+    vector<int> tat = turnAroundTime(jobs, completion);
     for (auto el : tat)
     {
         cout << el << " ";
@@ -70,7 +93,7 @@ int main()
     cout << endl;
 
     cout << "Waiting Time : ";
-    vector<int> waiting = waitingTime(burstTime, tat);
+    vector<int> waiting = waitingTime(jobs, tat);
 
     for (auto el : waiting)
     {

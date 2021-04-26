@@ -1,4 +1,4 @@
-//Shortest Job First (Non primitive)
+//Shortest Job First (Non Preemptive)
 //Author -- Yuvraj Mann
 
 #include <bits/stdc++.h>
@@ -22,32 +22,49 @@ public:
 vector<pair<int, int>> completion(vector<Job> jobs)
 {
     sort(jobs.begin(), jobs.end(), [](Job a, Job b) {
-        return ((a.burst <= b.burst) && ((a.arrival <= b.arrival)));
+        return ((a.arrival <= b.arrival));
     });
 
     vector<pair<int, int>> completion;
-    int n = jobs.size();
+    std::map<int, bool> completed;
+
+    int clock = 0;
     int i = 0;
-    int end = jobs[i].arrival + jobs[i].burst;
-    completion.push_back({end, jobs[i].index});
-    i++;
+    int n = jobs.size();
+    for (int j = 1; j <= n; ++j)
+    {
+        completed.insert({(j), false});
+    }
     while (i < n)
     {
-        if (end > jobs[i].arrival)
+        int j = 0;
+        pair<int, int> minBurst = make_pair(INT_MAX, -1);
+        while (j < n && (jobs[j].arrival <= clock))
         {
-            end += (jobs[i].burst);
+            if ((!completed[jobs[j].index]) && minBurst.first > jobs[j].burst)
+            {
+                minBurst.first = jobs[j].burst;
+                minBurst.second = jobs[j].index;
+            }
+            j++;
+        }
+        if (minBurst.second == -1)
+        {
+            if (j < n)
+            {
+                clock += jobs[j].burst + (jobs[j].arrival);
+                completed[jobs[j].index] = true;
+                completion.push_back({clock, jobs[j].index});
+            }
         }
         else
         {
-            end = (jobs[i].arrival + jobs[i].burst);
+            clock += (minBurst.first);
+            completed[minBurst.second] = true;
+            completion.push_back({clock, minBurst.second});
         }
-        completion.push_back({end, jobs[i].index});
         i++;
     }
-
-    sort(completion.begin(), completion.end(), [](pair<int, int> a, pair<int, int> b) {
-        return (a.second < b.second);
-    });
     return completion;
 }
 vector<int> turnAroundTime(vector<Job> jobs, vector<pair<int, int>> completionTime)
@@ -74,15 +91,17 @@ int main()
 {
     //stores arrival burst and
     vector<Job> jobs;
-    Job job1(1, 3, 1);
-    Job job2(2, 4, 2);
-    Job job3(1, 2, 3);
-    Job job4(4, 4, 4);
+    Job job1(2, 6, 1);
+    Job job2(5, 2, 2);
+    Job job3(1, 8, 3);
+    Job job4(0, 3, 4);
+    Job job5(4, 4, 5);
 
     jobs.push_back(job1);
     jobs.push_back(job2);
     jobs.push_back(job3);
     jobs.push_back(job4);
+    jobs.push_back(job5);
     vector<pair<int, int>> completionTime = completion(jobs);
     cout << "Completion Time : ";
     for (auto el : completionTime)
