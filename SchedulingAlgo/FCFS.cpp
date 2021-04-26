@@ -66,15 +66,17 @@ vector<int> waitingTime(vector<Job> jobs, vector<int> tat)
 int main()
 {
     vector<Job> jobs;
-    Job job1(0, 2, 1);
-    Job job2(1, 2, 2);
-    Job job3(5, 3, 3);
-    Job job4(6, 4, 4);
+    Job job1(2, 6, 1);
+    Job job2(5, 2, 2);
+    Job job3(1, 8, 3);
+    Job job4(0, 3, 4);
+    Job job5(4, 4, 5);
 
     jobs.push_back(job1);
     jobs.push_back(job2);
     jobs.push_back(job3);
     jobs.push_back(job4);
+    jobs.push_back(job5);
 
     vector<int> completion = completionTime(jobs);
     cout << "Completion Time :";

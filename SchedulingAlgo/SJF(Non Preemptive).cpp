@@ -108,7 +108,9 @@ int main()
     {
         cout << "Job " << el.second << "--" << el.first << endl;
     }
-
+    sort(completionTime.begin(), completionTime.end(), [](pair<int, int> a, pair<int, int> b) {
+        return (a.second < b.second);
+    });
     cout << "Turn Around Time : ";
     vector<int> tat = turnAroundTime(jobs, completionTime);
     for (int i = 0; i < tat.size(); ++i)
