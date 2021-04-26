@@ -19,13 +19,16 @@ public:
     }
 };
 
-vector<int> completionTime(vector<Job> jobs)
+vector<pair<int, int>> completionTime(vector<Job> jobs)
 {
-    vector<int> completion;
+    vector<pair<int, int>> completion;
+    sort(jobs.begin(), jobs.end(), [](Job a, Job b) {
+        return (a.arrival < b.arrival);
+    });
     int n = jobs.size();
     int i = 1;
     int end = jobs[0].arrival + jobs[0].burst;
-    completion.push_back(end);
+    completion.push_back({end, jobs[0].index});
     while (i < n)
     {
         if (end > (jobs[i].arrival))
@@ -36,19 +39,19 @@ vector<int> completionTime(vector<Job> jobs)
         {
             end = jobs[i].arrival + jobs[i].burst;
         }
-        completion.push_back(end);
+        completion.push_back({end, jobs[i].index});
         i++;
     }
     return completion;
 }
 
-vector<int> turnAroundTime(vector<Job> jobs, vector<int> completion)
+vector<int> turnAroundTime(vector<Job> jobs, vector<pair<int, int>> completionTime)
 {
-    vector<int> tat;
     int n = jobs.size();
+    vector<int> tat;
     for (int i = 0; i < n; ++i)
     {
-        tat.push_back(completion[i] - jobs[i].arrival);
+        tat.push_back(completionTime[i].first - jobs[i].arrival);
     }
     return tat;
 }
@@ -78,28 +81,31 @@ int main()
     jobs.push_back(job4);
     jobs.push_back(job5);
 
-    vector<int> completion = completionTime(jobs);
+    vector<pair<int, int>> completion = completionTime(jobs);
     cout << "Completion Time :";
     for (auto el : completion)
     {
-        cout << el << " ";
+        cout << "Job " << el.second << "--" << el.first << endl;
     }
     cout << endl;
 
+    sort(completion.begin(), completion.end(), [](pair<int, int> a, pair<int, int> b) {
+        return (a.second < b.second);
+    });
     cout << "Turn Around Time :";
     vector<int> tat = turnAroundTime(jobs, completion);
-    for (auto el : tat)
+    for (int i = 0; i < tat.size(); ++i)
     {
-        cout << el << " ";
+        cout << "Job " << (i + 1) << "--" << tat[i] << endl;
     }
     cout << endl;
 
     cout << "Waiting Time : ";
-    vector<int> waiting = waitingTime(jobs, tat);
+    vector<int> wt = waitingTime(jobs, tat);
 
-    for (auto el : waiting)
+    for (int i = 0; i < wt.size(); ++i)
     {
-        cout << el << " ";
+        cout << "Job " << (i + 1) << "--" << wt[i] << endl;
     }
     cout << endl;
     return 0;
