@@ -1,3 +1,6 @@
+//Shortest Job First (Preemptive)
+//Author -- Yuvraj Mann
+
 #include <bits/stdc++.h>
 using namespace std;
 
