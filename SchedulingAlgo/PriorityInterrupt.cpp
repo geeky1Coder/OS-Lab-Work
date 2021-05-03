@@ -1,4 +1,4 @@
-//Shortest Job First (Non Preemptive)
+//Priority Interrupt
 //Author -- Yuvraj Mann
 
 #include <bits/stdc++.h>
@@ -10,64 +10,79 @@ public:
     int arrival;
     int burst;
     int index;
+    int priority;
 
-    Job(int arrival, int burst, int index)
+    Job(int arrival, int burst, int index, int priority)
     {
         this->arrival = arrival;
         this->burst = burst;
         this->index = index;
+        this->priority = priority;
     }
 };
-
+bool operator<(const Job &p1, const Job &p2)
+{
+    return p1.priority < p2.priority;
+}
 vector<pair<int, int>> completion(vector<Job> jobs)
 {
-
-    vector<pair<int, int>> completion;
-    std::map<int, bool> completed;
+    priority_queue<Job> q;
 
     int clock = 0;
-    int i = 0;
+
+    int completedCount = 0;
     int n = jobs.size();
+    vector<pair<int, int>> complete;
+    std::map<int, bool> in_ready;
     for (int j = 1; j <= n; ++j)
     {
-        completed.insert({(j), false});
+        in_ready.insert({(j), false});
     }
-    while (i < n)
+
+    while (completedCount != n)
     {
-        int j = 0;
-        pair<int, int> minBurst = make_pair(INT_MAX, -1);
-        while (j < n && (jobs[j].arrival <= clock))
+        //intialing jobs with {clock} arrival time
+        for (int i = 0; i < (jobs.size()); ++i)
         {
-            if ((!completed[jobs[j].index]) && minBurst.first > jobs[j].burst)
+            if (jobs[i].arrival <= clock)
             {
-                minBurst.first = jobs[j].burst;
-                minBurst.second = jobs[j].index;
+                if (!in_ready[jobs[i].index])
+                {
+                    in_ready[jobs[i].index] = true;
+                    q.push(jobs[i]);
+                }
             }
-            j++;
+            else
+            {
+                break;
+            }
         }
-        if (minBurst.second == -1)
+
+        Job max_priority = q.top(); //getting job with max priority
+        q.pop();
+        max_priority.burst -= 1;
+        if (max_priority.burst == 0)
         {
-            if (j < n)
-            {
-                clock += jobs[j].burst + (jobs[j].arrival);
-                completed[jobs[j].index] = true;
-                completion.push_back({clock, jobs[j].index});
-            }
+            //Job completed
+            complete.push_back({(clock + 1), max_priority.index});
+            completedCount++;
         }
         else
         {
-            clock += (minBurst.first);
-            completed[minBurst.second] = true;
-            completion.push_back({clock, minBurst.second});
+            //Job not completed again push it into queue
+            q.push(max_priority);
         }
-        i++;
+        clock++;
     }
-    return completion;
+
+    return complete;
 }
+
 vector<int> turnAroundTime(vector<Job> jobs, vector<pair<int, int>> completionTime)
 {
     int n = jobs.size();
     vector<int> tat;
+
     for (int i = 0; i < n; ++i)
     {
         tat.push_back(completionTime[i].first - jobs[i].arrival);
@@ -86,22 +101,19 @@ vector<int> waitingTime(vector<Job> jobs, vector<int> tat)
 }
 int main()
 {
-    //stores arrival burst and
-    vector<Job> jobs;
-    Job job1(2, 6, 1);
-    Job job2(5, 2, 2);
-    Job job3(1, 8, 3);
-    Job job4(0, 3, 4);
-    Job job5(4, 4, 5);
+    Job j1(0, 5, 1, 10);
+    Job j2(1, 4, 2, 20);
+    Job j3(2, 2, 3, 30);
+    Job j4(4, 1, 4, 40);
 
-    jobs.push_back(job1);
-    jobs.push_back(job2);
-    jobs.push_back(job3);
-    jobs.push_back(job4);
-    jobs.push_back(job5);
+    vector<Job> jobs;
+    jobs.push_back(j1);
+    jobs.push_back(j4);
+    jobs.push_back(j2);
+    jobs.push_back(j3);
 
     sort(jobs.begin(), jobs.end(), [](Job a, Job b) {
-        return ((a.arrival <= b.arrival));
+        return (a.arrival < b.arrival);
     });
     vector<pair<int, int>> completionTime = completion(jobs);
     cout << "Completion Time : " << endl;
@@ -112,13 +124,13 @@ int main()
     sort(completionTime.begin(), completionTime.end(), [](pair<int, int> a, pair<int, int> b) {
         return (a.second < b.second);
     });
+
     cout << "Turn Around Time : " << endl;
     vector<int> tat = turnAroundTime(jobs, completionTime);
     for (int i = 0; i < tat.size(); ++i)
     {
         cout << "Job " << (i + 1) << "--" << tat[i] << endl;
     }
-
     cout << "Waiting Time : " << endl;
     vector<int> wt = waitingTime(jobs, tat);
     for (int i = 0; i < wt.size(); ++i)
@@ -126,4 +138,5 @@ int main()
         cout << "Job " << (i + 1) << "--" << wt[i] << endl;
     }
     cout << endl;
+    return 0;
 }

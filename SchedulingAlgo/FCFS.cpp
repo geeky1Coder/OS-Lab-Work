@@ -22,9 +22,6 @@ public:
 vector<pair<int, int>> completionTime(vector<Job> jobs)
 {
     vector<pair<int, int>> completion;
-    sort(jobs.begin(), jobs.end(), [](Job a, Job b) {
-        return (a.arrival < b.arrival);
-    });
     int n = jobs.size();
     int i = 1;
     int end = jobs[0].arrival + jobs[0].burst;
@@ -81,6 +78,9 @@ int main()
     jobs.push_back(job4);
     jobs.push_back(job5);
 
+    sort(jobs.begin(), jobs.end(), [](Job a, Job b) {
+        return ((a.arrival <= b.arrival));
+    });
     vector<pair<int, int>> completion = completionTime(jobs);
     cout << "Completion Time :" << endl;
     for (auto el : completion)

@@ -1,4 +1,4 @@
-//Shortest Job First (Preemptive)
+//Round Robin Algo
 //Author -- Yuvraj Mann
 
 #include <bits/stdc++.h>
@@ -21,9 +21,6 @@ public:
 
 vector<pair<int, int>> completion(vector<Job> jobs, int timeQuantum)
 {
-    sort(jobs.begin(), jobs.end(), [](Job a, Job b) {
-        return ((a.arrival <= b.arrival));
-    });
     //running queue
     queue<Job> ready;
     int clock = 0;
@@ -117,6 +114,9 @@ int main()
     jobs.push_back(j3);
     jobs.push_back(j4);
 
+    sort(jobs.begin(), jobs.end(), [](Job a, Job b) {
+        return (a.arrival < b.arrival);
+    });
     vector<pair<int, int>> completionTime = completion(jobs, timeQuantum);
     cout << "Completion Time : " << endl;
     for (auto el : completionTime)
