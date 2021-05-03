@@ -82,7 +82,7 @@ int main()
     jobs.push_back(job5);
 
     vector<pair<int, int>> completion = completionTime(jobs);
-    cout << "Completion Time :";
+    cout << "Completion Time :" << endl;
     for (auto el : completion)
     {
         cout << "Job " << el.second << "--" << el.first << endl;
@@ -92,7 +92,7 @@ int main()
     sort(completion.begin(), completion.end(), [](pair<int, int> a, pair<int, int> b) {
         return (a.second < b.second);
     });
-    cout << "Turn Around Time :";
+    cout << "Turn Around Time :" << endl;
     vector<int> tat = turnAroundTime(jobs, completion);
     for (int i = 0; i < tat.size(); ++i)
     {
@@ -100,7 +100,7 @@ int main()
     }
     cout << endl;
 
-    cout << "Waiting Time : ";
+    cout << "Waiting Time : " << endl;
     vector<int> wt = waitingTime(jobs, tat);
 
     for (int i = 0; i < wt.size(); ++i)

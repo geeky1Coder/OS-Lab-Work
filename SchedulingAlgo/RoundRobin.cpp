@@ -1,6 +1,3 @@
-//Shortest Job First (Non Preemptive)
-//Author -- Yuvraj Mann
-
 #include <bits/stdc++.h>
 using namespace std;
 
@@ -19,58 +16,73 @@ public:
     }
 };
 
-vector<pair<int, int>> completion(vector<Job> jobs)
+vector<pair<int, int>> completion(vector<Job> jobs, int timeQuantum)
 {
     sort(jobs.begin(), jobs.end(), [](Job a, Job b) {
         return ((a.arrival <= b.arrival));
     });
-
-    vector<pair<int, int>> completion;
-    std::map<int, bool> completed;
-
+    //running queue
+    queue<Job> ready;
     int clock = 0;
-    int i = 0;
+    ready.push(jobs[0]); //placing very first JOB
+
     int n = jobs.size();
+    int completedCount = 0;
+    //checking if job is completed
+    std::map<int, bool> completed;
+    //checking bojs in ready queue
+    std::map<int, bool> in_ready;
     for (int j = 1; j <= n; ++j)
     {
         completed.insert({(j), false});
+        in_ready.insert({(j), false});
     }
-    while (i < n)
+
+    vector<pair<int, int>> complete;
+    while (completedCount != n)
     {
-        int j = 0;
-        pair<int, int> minBurst = make_pair(INT_MAX, -1);
-        while (j < n && (jobs[j].arrival <= clock))
+        Job front_Job = (ready.front()); //job ready execute
+        if (front_Job.burst <= (timeQuantum))
         {
-            if ((!completed[jobs[j].index]) && minBurst.first > jobs[j].burst)
-            {
-                minBurst.first = jobs[j].burst;
-                minBurst.second = jobs[j].index;
-            }
-            j++;
-        }
-        if (minBurst.second == -1)
-        {
-            if (j < n)
-            {
-                clock += jobs[j].burst + (jobs[j].arrival);
-                completed[jobs[j].index] = true;
-                completion.push_back({clock, jobs[j].index});
-            }
+            //Job can be completed within this time quantum
+            clock += front_Job.burst;
+            front_Job.burst = 0;
+            completed[front_Job.index] = true;
+            completedCount++;
+            complete.push_back({clock, front_Job.index});
         }
         else
         {
-            clock += (minBurst.first);
-            completed[minBurst.second] = true;
-            completion.push_back({clock, minBurst.second});
+            //Job can't be completed within this time quantum
+            front_Job.burst -= timeQuantum;
+            clock += timeQuantum;
         }
-        i++;
+        ready.pop();
+        in_ready[front_Job.index] = false;
+        //Pushing jobs to queue;
+        for (auto el : jobs)
+        {
+            if (el.arrival <= clock && (!in_ready[el.index]) && (el.index != front_Job.index) && (!completed[el.index]))
+            {
+                ready.push(el);
+                in_ready[el.index] = true;
+            }
+        }
+
+        //push executed againg in ready queue if not completed
+        if (front_Job.burst > 0)
+        {
+            ready.push(front_Job);
+            in_ready[front_Job.index] = true;
+        }
     }
-    return completion;
+    return complete;
 }
 vector<int> turnAroundTime(vector<Job> jobs, vector<pair<int, int>> completionTime)
 {
     int n = jobs.size();
     vector<int> tat;
+
     for (int i = 0; i < n; ++i)
     {
         tat.push_back(completionTime[i].first - jobs[i].arrival);
@@ -87,22 +99,22 @@ vector<int> waitingTime(vector<Job> jobs, vector<int> tat)
     }
     return waiting_time;
 }
+
 int main()
 {
-    //stores arrival burst and
-    vector<Job> jobs;
-    Job job1(2, 6, 1);
-    Job job2(5, 2, 2);
-    Job job3(1, 8, 3);
-    Job job4(0, 3, 4);
-    Job job5(4, 4, 5);
+    Job j1(0, 5, 1);
+    Job j2(1, 4, 2);
+    Job j3(2, 2, 3);
+    Job j4(4, 1, 4);
 
-    jobs.push_back(job1);
-    jobs.push_back(job2);
-    jobs.push_back(job3);
-    jobs.push_back(job4);
-    jobs.push_back(job5);
-    vector<pair<int, int>> completionTime = completion(jobs);
+    vector<Job> jobs;
+    int timeQuantum = 2;
+    jobs.push_back(j1);
+    jobs.push_back(j2);
+    jobs.push_back(j3);
+    jobs.push_back(j4);
+
+    vector<pair<int, int>> completionTime = completion(jobs, timeQuantum);
     cout << "Completion Time : " << endl;
     for (auto el : completionTime)
     {
@@ -117,7 +129,6 @@ int main()
     {
         cout << "Job " << (i + 1) << "--" << tat[i] << endl;
     }
-
     cout << "Waiting Time : " << endl;
     vector<int> wt = waitingTime(jobs, tat);
     for (int i = 0; i < wt.size(); ++i)
@@ -125,4 +136,6 @@ int main()
         cout << "Job " << (i + 1) << "--" << wt[i] << endl;
     }
     cout << endl;
+
+    return 0;
 }
