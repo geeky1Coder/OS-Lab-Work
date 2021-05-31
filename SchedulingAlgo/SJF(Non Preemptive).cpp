@@ -21,7 +21,6 @@ public:
 
 vector<pair<int, int>> completion(vector<Job> jobs)
 {
-
     vector<pair<int, int>> completion;
     std::map<int, bool> completed;
 

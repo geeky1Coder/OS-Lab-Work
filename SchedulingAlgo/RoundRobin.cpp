@@ -108,7 +108,7 @@ int main()
     Job j4(4, 1, 4);
 
     vector<Job> jobs;
-    int timeQuantum = 2;
+    int timeQuantum = 3;
     jobs.push_back(j1);
     jobs.push_back(j2);
     jobs.push_back(j3);
